@@ -23,11 +23,12 @@ impl Segment {
         (self.b - self.a).normalize()
     }
 
+    #[allow(dead_code)]
     pub fn length(&self) -> f32 {
         (self.b - self.a).length()
     }
 
-    pub fn to_ray(&self) -> Ray {
+    pub fn to_ray(self) -> Ray {
         Ray {
             origin: self.a,
             direction: self.direction(),
@@ -46,6 +47,7 @@ pub struct RayIntersection {
 }
 
 impl Ray {
+    #[allow(dead_code)]
     fn new(origin: Point2, direction: Vec2) -> Self {
         Ray {
             origin,
@@ -53,6 +55,7 @@ impl Ray {
         }
     }
 
+    #[allow(dead_code)]
     fn from_points(a: Point2, b: Point2) -> Self {
         Ray {
             origin: a,
@@ -60,6 +63,7 @@ impl Ray {
         }
     }
 
+    #[allow(dead_code)]
     fn is_valid(&self) -> bool {
         self.direction.is_normalized()
     }
@@ -100,7 +104,7 @@ impl Ray {
     pub fn intersect_first(&self, segments: &[Segment]) -> Option<RayIntersection> {
         segments
             .iter()
-            .filter_map(|s| self.intersect(&s))
+            .filter_map(|s| self.intersect(s))
             .min_by(|ia, ib| {
                 ia.distance
                     .partial_cmp(&ib.distance)

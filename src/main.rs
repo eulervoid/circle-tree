@@ -7,15 +7,14 @@ const FRAMES_PER_CYCLE: f32 = 1200.;
 
 struct Model {
     pub config: RandomTreeConfig,
-    pub tree_a: Tree<f32>,
-    pub tree_b: Tree<f32>,
+    pub tree: Tree<f32>,
 }
 
 fn model(app: &App) -> Model {
     let _w = app
         .new_window()
         .key_pressed(key_pressed)
-        .size(1920, 1080)
+        .size(1200, 1200)
         .msaa_samples(4)
         .view(view)
         .build()
@@ -29,8 +28,7 @@ fn model(app: &App) -> Model {
     let mut rng = rand::thread_rng();
     Model {
         config: tree_config,
-        tree_a: Tree::<f32>::random(&mut rng, &tree_config),
-        tree_b: Tree::<f32>::random(&mut rng, &tree_config),
+        tree: Tree::<f32>::random(&mut rng, &tree_config),
     }
 }
 
@@ -46,12 +44,8 @@ fn view(app: &App, model: &Model, frame: Frame) {
         .iter()
         .map(|s| s.transform(b_scale))
         .collect();
-    let segments_a = division_lines(&model.tree_a, scale, phase, &bounds);
-    // let segments_b = division_lines(&model.tree_b, scale, phase, &bounds);
-
+    let segments_a = division_lines(&model.tree, scale, phase, &bounds);
     view_segments(&draw, &segments_a, GREENYELLOW);
-    // view_segments(&draw, &segments_b, LIGHTCORAL);
-    // view_segments(&draw, &bounds, GREENYELLOW);
 
     draw.to_frame(app, &frame).unwrap();
 
@@ -86,14 +80,13 @@ fn division_lines(
             let translation = Vec2::new(1., 0.) * (1. - scaling);
             let transform = transform * Affine2::from_angle(angle);
             let segment = Segment::new((0., 0.).into(), translation).transform(transform);
-            if let Some(intersection) = segment.to_ray().intersect_first(&bounds) {
+            if let Some(intersection) = segment.to_ray().intersect_first(bounds) {
                 segments.push(Segment::new(segment.a, intersection.point));
             }
-            let transform = transform
+            transform
                 * Affine2::from_angle(PI / n as f32)
                 * Affine2::from_translation(translation)
-                * Affine2::from_scale(Vec2::splat(scaling * 0.99));
-            transform
+                * Affine2::from_scale(Vec2::splat(scaling * 0.99))
         })
         .collect();
     let new_bounds: Vec<Segment> = segments
@@ -118,7 +111,7 @@ fn default_bounds() -> Vec<Segment> {
         .collect()
 }
 
-fn view_segments(draw: &Draw, segments: &Vec<Segment>, color: Rgb<u8>) {
+fn view_segments(draw: &Draw, segments: &[Segment], color: Rgb<u8>) {
     for segment in segments.iter() {
         draw.line()
             .start(segment.a)
@@ -146,11 +139,7 @@ fn key_pressed(_app: &App, model: &mut Model, key: Key) {
     match key {
         Key::Space => {
             let mut rng = rand::thread_rng();
-            model.tree_a = Tree::<f32>::random(&mut rng, &model.config);
-            model.tree_b = Tree::<f32>::random(&mut rng, &model.config);
-        }
-        Key::R => {
-            //model.save_frame = !model.save_frame;
+            model.tree = Tree::<f32>::random(&mut rng, &model.config);
         }
         _ => {}
     }

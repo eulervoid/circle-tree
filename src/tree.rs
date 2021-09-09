@@ -17,6 +17,7 @@ impl<V> Tree<V>
 where
     V: Clone + Default,
 {
+    #[allow(dead_code)]
     pub fn default() -> Self {
         Tree {
             value: V::default(),
@@ -24,15 +25,12 @@ where
         }
     }
 
+    #[allow(dead_code)]
     pub fn map_nodes(&self, func: &dyn Fn(&V) -> V) -> Self {
-        match self {
-            Tree { value, children } => Tree {
-                value: func(value),
-                children: children
-                    .into_iter()
-                    .map(|child| child.map_nodes(func))
-                    .collect(),
-            },
+        let Tree { value, children } = self;
+        Tree {
+            value: func(value),
+            children: children.iter().map(|child| child.map_nodes(func)).collect(),
         }
     }
 }
@@ -90,9 +88,8 @@ where
 impl Random for f32 {
     type Config = RandomTreeConfig;
 
-    fn random<R: Rng + ?Sized>(rng: &mut R, config: &Self::Config) -> Self {
+    fn random<R: Rng + ?Sized>(rng: &mut R, _config: &Self::Config) -> Self {
         let values = [-3., -2., -1., 1., 2., 3.];
         *values.choose(rng).unwrap()
-        // rng.gen_range(-config.max_offset..=config.max_offset)
     }
 }
