@@ -50,11 +50,11 @@ fn view(app: &App, model: &Model, frame: Frame) {
     draw.to_frame(app, &frame).unwrap();
 
     // uncomment to record looping video frames
-    if app.elapsed_frames() <= FRAMES_PER_CYCLE.floor() as u64 {
+    /* if app.elapsed_frames() <= FRAMES_PER_CYCLE.floor() as u64 {
         save_frame(app, &frame);
     } else {
         app.quit();
-    }
+    } */
 }
 
 fn division_lines(
@@ -125,6 +125,7 @@ fn main() {
     nannou::app(model).view(view).run();
 }
 
+#[allow(unused)]
 fn save_frame(app: &App, frame: &Frame) {
     let file_path = app
         .project_path()
